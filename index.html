@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Screen Recorder</title>
-<meta name="description" content="Record your screen with sound. Big buttons, nothing to install, and your videos never leave your computer.">
+<meta name="description" content="Record your screen with sound. Big buttons, nothing to install.">
 <meta name="theme-color" content="#f6f2ec">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png" type="image/png">
@@ -25,27 +25,19 @@
   header{text-align:center; margin-bottom:22px}
   header .logo{font-size:44px; line-height:1}
   h1{font-size:34px; margin:6px 0 4px; letter-spacing:-.5px}
-  .tagline{color:var(--muted); margin:0; font-size:17px}
 
   .screen{display:none}
   .screen.active{display:block}
-
-  .card{
-    background:var(--card); border:2px solid var(--line); border-radius:var(--radius);
-    padding:18px 20px; margin-bottom:14px;
-  }
 
   /* ---- toggle cards ---- */
   button.toggle{
     display:flex; align-items:center; gap:16px; width:100%;
     background:var(--card); border:2px solid var(--line); border-radius:var(--radius);
-    padding:18px 20px; cursor:pointer; text-align:left; font:inherit; color:inherit;
+    padding:20px; cursor:pointer; text-align:left; font:inherit; color:inherit;
   }
   button.toggle:focus-visible{outline:4px solid #7aa7d9; outline-offset:2px}
   .toggle .emoji{font-size:34px}
-  .toggle .lbl{flex:1}
-  .toggle .lbl b{font-size:22px; display:block}
-  .toggle .lbl small{color:var(--muted); font-size:15px}
+  .toggle .lbl{flex:1; font-size:22px; font-weight:700}
   .switch{
     flex:none; width:84px; height:44px; border-radius:999px; background:#cfc8bd;
     position:relative; transition:background .15s;
@@ -64,10 +56,8 @@
   .toggle.busy{opacity:.6; pointer-events:none}
 
   .mic-extra{margin:-6px 0 14px; padding:0 20px}
-  .meter-wrap{display:flex; align-items:center; gap:10px; background:#efe9df; border-radius:12px; padding:10px 14px}
-  .meter{flex:1; height:14px; background:#dcd4c6; border-radius:999px; overflow:hidden}
+  .meter{height:14px; background:#dcd4c6; border-radius:999px; overflow:hidden}
   .meter>div{height:100%; width:0%; background:var(--green); border-radius:999px; transition:width .08s linear}
-  .meter-wrap small{color:var(--muted); white-space:nowrap}
 
   /* ---- big buttons ---- */
   .btn{
@@ -103,20 +93,18 @@
     border-radius:12px; padding:8px 14px; cursor:pointer;
   }
 
-  .pill{
-    margin-top:18px; text-align:center; color:var(--green); font-weight:700; font-size:16px;
-  }
+  .pill{margin-top:18px; text-align:center; color:var(--green); font-weight:700; font-size:16px}
 
-  footer{margin-top:26px; text-align:center; color:var(--muted); font-size:15px}
+  footer{margin-top:26px; text-align:center}
   #installChip{
-    display:none; margin:12px auto 0; font:inherit; font-weight:700; font-size:16px;
+    display:none; font:inherit; font-weight:700; font-size:16px;
     border:2px solid var(--line); background:#fff; border-radius:999px; padding:10px 18px; cursor:pointer;
   }
 
-  /* ---- hint / instruction screens ---- */
+  /* ---- instruction / status screens ---- */
   .steps{list-style:none; padding:0; margin:0; counter-reset:s}
   .steps li{
-    counter-increment:s; display:flex; gap:14px; align-items:flex-start;
+    counter-increment:s; display:flex; gap:14px; align-items:center;
     font-size:21px; margin-bottom:16px;
   }
   .steps li::before{
@@ -124,24 +112,8 @@
     background:var(--ink); color:#fff; font-weight:800; font-size:20px;
     display:flex; align-items:center; justify-content:center;
   }
-  .mockdlg{
-    border:2px solid var(--line); border-radius:16px; background:#fff; padding:16px;
-    margin:18px 0; text-align:center;
-  }
-  .mockdlg .mock-title{font-weight:700; color:var(--muted); font-size:15px; margin-bottom:10px}
-  .mockdlg .mock-screen{
-    display:inline-block; border:3px solid #7aa7d9; border-radius:10px; padding:14px 26px;
-    font-size:30px; background:#f2f6fb;
-  }
-  .mockdlg .mock-screen small{display:block; font-size:14px; color:var(--muted)}
-  .mockdlg .mock-audio{margin-top:12px; font-size:18px; font-weight:700}
-  .mockdlg .mock-share{
-    display:inline-block; margin-top:12px; background:#1a73e8; color:#fff; font-weight:700;
-    border-radius:8px; padding:8px 26px; font-size:17px;
-  }
   .note{color:var(--muted); font-size:16px; text-align:center; margin-top:14px}
 
-  /* ---- countdown / recording ---- */
   .center{text-align:center}
   #countNum{font-size:170px; font-weight:800; line-height:1.1; margin:10px 0}
   .bigmsg{font-size:23px; font-weight:700}
@@ -187,7 +159,6 @@
   <header>
     <div class="logo" aria-hidden="true">🎬</div>
     <h1>Screen Recorder</h1>
-    <p class="tagline">Records your screen. Videos stay on <em>your</em> computer.</p>
   </header>
 
   <!-- ============ READY ============ -->
@@ -196,20 +167,17 @@
 
     <button class="toggle" id="tgSys" aria-pressed="true">
       <span class="emoji" aria-hidden="true">🔊</span>
-      <span class="lbl"><b>Computer sound</b><small>music, videos, dings</small></span>
+      <span class="lbl">Computer sound</span>
       <span class="switch" aria-hidden="true"></span>
     </button>
 
     <button class="toggle" id="tgMic" aria-pressed="false" style="margin-top:14px">
       <span class="emoji" aria-hidden="true">🎤</span>
-      <span class="lbl"><b>Microphone</b><small>your voice</small></span>
+      <span class="lbl">Microphone</span>
       <span class="switch" aria-hidden="true"></span>
     </button>
     <div class="mic-extra" id="micExtra" hidden>
-      <div class="meter-wrap">
-        <div class="meter"><div id="meterBar"></div></div>
-        <small id="meterHint">Say something — the green bar should move</small>
-      </div>
+      <div class="meter"><div id="meterBar"></div></div>
     </div>
 
     <button class="btn btn-record" id="btnRecord" style="margin-top:18px">
@@ -225,57 +193,31 @@
     <div class="pill" id="readyPill" role="status">✔ Ready to record</div>
 
     <footer>
-      Nothing is uploaded to the internet — recordings never leave this computer.
       <button id="installChip">⬇ &nbsp;Put this on my desktop as an app</button>
     </footer>
   </section>
 
-  <!-- ============ HINT (share dialog is about to open / open) ============ -->
+  <!-- ============ HINT (shown behind the browser's share dialog) ============ -->
   <section class="screen" id="s-hint">
     <h2>A window is popping up…</h2>
     <ol class="steps" id="hintSteps"></ol>
-    <div class="mockdlg" aria-hidden="true">
-      <div class="mock-title">It looks something like this:</div>
-      <div class="mock-screen">🖥️<small>Entire screen</small></div>
-      <div class="mock-audio" id="mockAudioLine">☑ Also share system audio &nbsp;← tick this!</div>
-      <div class="mock-share">Share</div>
-    </div>
-    <p class="note">Changed your mind? Press <b>Cancel</b> in the popup — nothing will be recorded.</p>
   </section>
 
-  <!-- ============ SOUND CAPTURE FAILED (share accepted but audio refused) ============ -->
-  <section class="screen" id="s-captureerr">
-    <h2>🔇 The computer's sound couldn't be captured</h2>
-    <p class="body-text center">
-      Your computer refused to share its sound just now. This sometimes happens
-      when another program is using the audio. Recording <b>without</b> the
-      computer's sound will still work fine.
-    </p>
-    <button class="btn btn-green" id="btnRetryNoSys">🎬 &nbsp;Record without computer sound</button>
-    <button class="btn btn-plain" id="btnRetryWithSys">🔁 &nbsp;Try again with sound</button>
-    <button class="btn btn-plain" id="btnCaptureCancel">Cancel</button>
+  <!-- ============ COMPUTER SOUND NOT CAPTURED ============ -->
+  <section class="screen" id="s-nosound">
+    <h2>🔇 The computer's sound wasn't included</h2>
+    <p class="body-text center" id="nosoundMsg"></p>
+    <button class="btn btn-green" id="btnSoundRetry">🔁 &nbsp;Try again with sound</button>
+    <button class="btn btn-plain" id="btnSoundSkip">Record without computer sound</button>
+    <button class="btn btn-plain" id="btnSoundCancel">Cancel</button>
     <p class="note"><small id="gdmErrDetail" style="color:var(--muted)"></small></p>
-  </section>
-
-  <!-- ============ NO SYSTEM AUDIO DETECTED ============ -->
-  <section class="screen" id="s-noaudio">
-    <h2>🔇 I couldn't hear the computer's sound</h2>
-    <p class="body-text center">
-      The little <b>“share audio”</b> box probably wasn't ticked.
-      Want to try once more?
-    </p>
-    <button class="btn btn-green" id="btnRetryShare">🔁 &nbsp;Try again — I'll tick the box</button>
-    <button class="btn btn-plain" id="btnContinueSilent">Record anyway, without computer sound</button>
-    <button class="btn btn-plain" id="btnCancelShare">Cancel</button>
   </section>
 
   <!-- ============ COUNTDOWN ============ -->
   <section class="screen center" id="s-countdown">
     <p class="bigmsg">Recording starts in…</p>
     <div id="countNum">3</div>
-    <p class="bigmsg" style="color:var(--muted)">
-      Don't want this window in your video?<br>Minimize it now! (the <b>—</b> button, top right)
-    </p>
+    <p class="bigmsg" style="color:var(--muted)">Minimize this window to keep it out of the video</p>
     <button class="btn btn-plain" id="btnCancelCountdown">Cancel</button>
   </section>
 
@@ -285,10 +227,6 @@
     <div id="recTimer">0:00</div>
     <div class="badges" id="recBadges"></div>
     <button class="btn btn-stop" id="btnStop">■ &nbsp;Stop and save</button>
-    <p class="note">
-      You can also press the <b>“Stop sharing”</b> button floating at the
-      bottom of your screen — that saves it too.
-    </p>
   </section>
 
   <!-- ============ SAVING ============ -->
@@ -335,18 +273,18 @@
 <script>
 "use strict";
 /* ============================================================
-   Screen Recorder — single-file app.
-   No uploads, no analytics, no external requests.
+   Screen Recorder — single-file app. No uploads, no analytics,
+   no external requests. Records the screen straight to MP4.
    ============================================================ */
 
-const VERSION = "1.0.2";
-// Verified empirically: Chrome's MP4 muxer drops the video track when a
-// timeslice is used (audio-only file results). Must stay null — Chrome
-// disk-backs large in-progress blobs, so memory stays fine either way.
+const VERSION = "1.0.3";
+// Chrome's MP4 muxer drops the video track when start() is given a
+// timeslice (verified) — keep it null so we get one final blob. Chrome
+// disk-backs large recordings, so memory is fine.
 const TIMESLICE_MS = null;
 
 const $ = id => document.getElementById(id);
-const screens = ["ready","hint","captureerr","noaudio","countdown","recording","saving","saved","micproblem","error","unsupported"];
+const screens = ["ready","hint","nosound","countdown","recording","saving","saved","micproblem","error","unsupported"];
 function show(name){
   for (const s of screens) $("s-"+s).classList.toggle("active", s===name);
   window.scrollTo(0,0);
@@ -425,9 +363,8 @@ function addrBlock(){
 }
 
 /* ---------- state ---------- */
-let sysOn  = (localStorage.getItem("esr_sys") ?? "1") === "1";
-let micOn  = false;                    // becomes true only once permission works
-const micWanted = localStorage.getItem("esr_mic") === "1";
+let sysOn = (localStorage.getItem("esr_sys") ?? "1") === "1";
+let micOn = false;                     // true only while a live mic stream is open
 let micStream = null;                  // live mic stream (kept open for the meter)
 let dirHandle = null;                  // File System Access directory handle
 
@@ -435,6 +372,8 @@ let displayStream = null, recAC = null, recorder = null;
 let chunks = [], recStartTs = 0, timerIv = 0, wakeLock = null;
 let lastBlob = null, lastName = "";
 let countdownTimer = 0, deferredInstall = null;
+
+const MIC_CONSTRAINTS = { audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true } };
 
 /* ---------- toggles ---------- */
 function paintToggles(){
@@ -448,23 +387,14 @@ $("tgSys").onclick = () => {
   paintToggles();
 };
 $("tgMic").onclick = async () => {
-  if (micOn){
-    stopMic();
-    localStorage.setItem("esr_mic","0");
-    paintToggles();
-    return;
-  }
+  if (micOn){ stopMic(); localStorage.setItem("esr_mic","0"); paintToggles(); return; }
   $("tgMic").classList.add("busy");
-  try {
-    micStream = await navigator.mediaDevices.getUserMedia({
-      audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true }
-    });
+  try{
+    micStream = await navigator.mediaDevices.getUserMedia(MIC_CONSTRAINTS);
     micOn = true;
     localStorage.setItem("esr_mic","1");
     startMeter();
-  } catch(e){
-    showMicProblem(e && e.name);
-  }
+  }catch(e){ showMicProblem(e && e.name); }
   $("tgMic").classList.remove("busy");
   paintToggles();
 };
@@ -476,27 +406,26 @@ function stopMic(){
 function showMicProblem(errName){
   if (errName === "NotFoundError" || errName === "DevicesNotFoundError"){
     $("micProbTitle").textContent = "🎤 No microphone was found";
-    $("micProbBody").innerHTML = "This computer doesn't seem to have a microphone plugged in. You can still record the screen and the computer's sound — just leave the Microphone switch off.";
+    $("micProbBody").innerHTML = "This computer doesn't seem to have a microphone. You can still record the screen and the computer's sound — just leave this switch off.";
   } else if (errName === "NotAllowedError" || errName === "PermissionDeniedError"){
     $("micProbTitle").textContent = "🎤 The microphone is blocked";
-    $("micProbBody").innerHTML = "Your browser said no to the microphone. To fix it: click the little <b>🔒 or 🎤 icon</b> right next to the address at the top of this window, switch the Microphone to <b>Allow</b>, then try the switch again.";
+    $("micProbBody").innerHTML = "Click the <b>🔒 or 🎤 icon</b> next to the address at the top, switch the microphone to <b>Allow</b>, then try again.";
   } else {
     $("micProbTitle").textContent = "🎤 The microphone isn't working";
-    $("micProbBody").innerHTML = "Something went wrong turning on the microphone. Try again in a moment, or restart the browser.";
+    $("micProbBody").innerHTML = "Something went wrong turning on the microphone. Try again in a moment.";
   }
   show("micproblem");
 }
 $("btnMicBack").onclick = () => show("ready");
 
-/* mic level meter */
+/* mic level meter (decorative — never blocks recording) */
 let meterAC = null, meterRaf = 0;
 function startMeter(){
   try{
     meterAC = new AudioContext();
-    const src = meterAC.createMediaStreamSource(micStream);
     const an = meterAC.createAnalyser();
     an.fftSize = 512;
-    src.connect(an);
+    meterAC.createMediaStreamSource(micStream).connect(an);
     const buf = new Uint8Array(an.frequencyBinCount);
     const loop = () => {
       an.getByteTimeDomainData(buf);
@@ -506,7 +435,7 @@ function startMeter(){
       meterRaf = requestAnimationFrame(loop);
     };
     loop();
-  }catch(_){/* meter is decorative — never block on it */}
+  }catch(_){}
 }
 function stopMeter(){
   cancelAnimationFrame(meterRaf);
@@ -515,9 +444,8 @@ function stopMeter(){
 }
 
 /* ---------- save location ---------- */
-const FS_OK = "showDirectoryPicker" in window;
 async function loadDir(){
-  if (!FS_OK) return;
+  if (!("showDirectoryPicker" in window)) return;
   $("btnChange").hidden = false;
   try{ dirHandle = await idb.get("dir") || null; }catch(_){ dirHandle = null; }
   paintSaveRow();
@@ -528,9 +456,8 @@ function paintSaveRow(){
 }
 $("btnChange").onclick = async () => {
   try{
-    const h = await window.showDirectoryPicker({ mode:"readwrite", startIn:"videos" });
-    dirHandle = h;
-    await idb.set("dir", h);
+    dirHandle = await window.showDirectoryPicker({ mode:"readwrite", startIn:"videos" });
+    await idb.set("dir", dirHandle);
   }catch(_){/* cancelled */}
   paintSaveRow();
 };
@@ -550,86 +477,74 @@ function toast(msg){
 
 $("btnRecord").onclick = () => startFlow(false);
 
-// skipSys: one-shot "record without computer sound" override after a
-// system-audio capture failure — does not change the remembered toggle.
+// skipSys: one-shot "record without computer sound" — leaves the toggle as-is.
 async function startFlow(skipSys){
   const wantSys = sysOn && !skipSys;
-  // Created inside the click gesture so autoplay rules never suspend it
-  // (a suspended context would mean a silently muted recording).
-  if (!recAC || recAC.state === "closed"){
+
+  // When we'll mix mic + computer sound, the AudioContext must be created
+  // now, during this click — one created after the countdown starts muted.
+  if (micOn && wantSys && (!recAC || recAC.state === "closed")){
     try{ recAC = new AudioContext(); }catch(_){ recAC = null; }
   }
-  if (recAC && recAC.state === "suspended") recAC.resume().catch(()=>{});
-  // 1) microphone first, so its permission prompt doesn't interrupt later
-  if (micWantedNow() && !micStream){
-    try{
-      micStream = await navigator.mediaDevices.getUserMedia({
-        audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true }
-      });
-      micOn = true; startMeter(); paintToggles();
-    }catch(e){ showMicProblem(e && e.name); return; }
-  }
-  // 2) screen picker
+
   renderHintSteps(wantSys);
   show("hint");
   let stream;
   try{
-    // Deliberately minimal — the textbook request. Every extra option here
-    // is another way for capture setup to fail on someone's machine.
-    stream = await navigator.mediaDevices.getDisplayMedia({
-      video: true,
-      audio: wantSys
-    });
+    // The textbook request. Extra options here are just more ways for
+    // capture to fail on someone's machine.
+    stream = await navigator.mediaDevices.getDisplayMedia({ video:true, audio:wantSys });
   }catch(err){
     teardownCapture();
     if (!err || err.name === "NotAllowedError"){
-      // The user pressed Cancel (or the browser refused permission outright)
       show("ready");
       toast("No problem — nothing was recorded.");
       return;
     }
-    // Share was pressed but capture failed to start (usually the system
-    // sound refusing to be captured). Offer a way forward, never a dead end.
-    console.error("Screen capture failed:", err);
-    $("gdmErrDetail").textContent = "Technical detail: " + err.name + (err.message ? " — " + err.message : "");
     if (wantSys){
-      show("captureerr");
+      // Share accepted but the sound source refused to start (usually the
+      // playback device, e.g. some USB headsets) — offer a way forward.
+      showNoSound(
+        "Your computer wouldn't share its sound just now. You can record without it.",
+        "Technical detail: " + err.name + (err.message ? " — " + err.message : "")
+      );
     }else{
-      $("errBody").textContent = "The screen couldn't be captured. (" + err.name + ") Try closing other recording programs, then press Try again.";
+      $("errBody").textContent = "The screen couldn't be captured (" + err.name + "). Close other recording programs and try again.";
       show("error");
     }
     return;
   }
   displayStream = stream;
-  const vTrack = stream.getVideoTracks()[0];
-  vTrack.addEventListener("ended", onShareEnded);
+  stream.getVideoTracks()[0].addEventListener("ended", onShareEnded);
 
-  // 3) did we actually get the computer's sound?
+  // Computer sound was asked for but no audio track came back — almost
+  // always the "share audio" box being left unticked.
   if (wantSys && stream.getAudioTracks().length === 0){
-    show("noaudio");
+    showNoSound("The “share audio” box probably wasn't ticked. Try again and tick it, or record without sound.", "");
     return;
   }
   beginCountdown();
 }
-$("btnRetryNoSys").onclick = () => startFlow(true);
-$("btnRetryWithSys").onclick = () => startFlow(false);
-$("btnCaptureCancel").onclick = () => show("ready");
-function micWantedNow(){
-  return micOn || (micWanted && !localStorageOptedOut());
+
+function showNoSound(msg, detail){
+  $("nosoundMsg").textContent = msg;
+  $("gdmErrDetail").textContent = detail || "";
+  show("nosound");
 }
-function localStorageOptedOut(){ return localStorage.getItem("esr_mic") === "0"; }
+$("btnSoundRetry").onclick = () => { teardownCapture(); startFlow(false); };
+$("btnSoundSkip").onclick = () => {
+  // If we still hold a live (video-only) capture, use it; otherwise re-pick.
+  if (displayStream) beginCountdown();
+  else startFlow(true);
+};
+$("btnSoundCancel").onclick = () => { teardownCapture(); show("ready"); };
 
 function renderHintSteps(wantSys){
   const steps = ["Click the <b>picture of your screen</b>"];
-  if (wantSys) steps.push("Tick the box about <b>sharing audio</b> (near the bottom)");
-  steps.push("Press the blue <b>Share</b> button");
+  if (wantSys) steps.push("Tick the box about <b>sharing audio</b>");
+  steps.push("Press <b>Share</b>");
   $("hintSteps").innerHTML = steps.map(s=>`<li><span>${s}</span></li>`).join("");
-  $("mockAudioLine").style.display = wantSys ? "" : "none";
 }
-
-$("btnRetryShare").onclick = () => { teardownCapture(); startFlow(false); };
-$("btnContinueSilent").onclick = () => beginCountdown();
-$("btnCancelShare").onclick = () => { teardownCapture(); show("ready"); toast("No problem — nothing was recorded."); };
 
 function beginCountdown(){
   show("countdown");
@@ -652,16 +567,17 @@ function startRecorder(){
     const vTrack = displayStream.getVideoTracks()[0];
     const sysTrack = displayStream.getAudioTracks()[0] || null;
     const micTrack = (micOn && micStream) ? micStream.getAudioTracks()[0] : null;
+    const sources = [sysTrack, micTrack].filter(Boolean);
 
-    // Mix system + mic into one AAC track
     let audioTrack = null;
-    if (sysTrack || micTrack){
+    if (sources.length === 1){
+      audioTrack = sources[0];                        // one source: use it directly
+    }else if (sources.length === 2){
+      // two sources: mix into one track (recAC was created during the click)
       if (!recAC || recAC.state === "closed") recAC = new AudioContext();
       if (recAC.state === "suspended") recAC.resume();
       const dest = recAC.createMediaStreamDestination();
-      for (const t of [sysTrack, micTrack]){
-        if (t) recAC.createMediaStreamSource(new MediaStream([t])).connect(dest);
-      }
+      sources.forEach(t => recAC.createMediaStreamSource(new MediaStream([t])).connect(dest));
       audioTrack = dest.stream.getAudioTracks()[0];
     }
 
@@ -679,7 +595,7 @@ function startRecorder(){
     recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
     recorder.onerror = e => { fatal("Recording stopped because of an error" + (e.error && e.error.message ? ` (${e.error.message})` : "") + "."); };
     recorder.onstop = finalize;
-    if (TIMESLICE_MS) recorder.start(TIMESLICE_MS); else recorder.start();
+    recorder.start();
 
     recStartTs = Date.now();
     $("recTimer").textContent = "0:00";
@@ -694,11 +610,11 @@ function startRecorder(){
   }
 }
 function paintBadges(sys, mic, surface){
-  const b = [];
-  b.push(`<span>🖥️ ${surface === "window" ? "One window" : "Screen"} ✓</span>`);
-  b.push(`<span class="${sys?"":"off"}">🔊 Computer sound</span>`);
-  b.push(`<span class="${mic?"":"off"}">🎤 Your voice</span>`);
-  $("recBadges").innerHTML = b.join("");
+  $("recBadges").innerHTML = [
+    `<span>🖥️ ${surface === "window" ? "One window" : "Screen"} ✓</span>`,
+    `<span class="${sys?"":"off"}">🔊 Computer sound</span>`,
+    `<span class="${mic?"":"off"}">🎤 Your voice</span>`
+  ].join("");
 }
 function paintTimer(){
   const s = Math.floor((Date.now() - recStartTs)/1000);
@@ -709,7 +625,7 @@ function paintTimer(){
 }
 
 function onShareEnded(){
-  // User pressed the browser's own "Stop sharing" button (or during countdown)
+  // Browser's own "Stop sharing" button (or it ending during the countdown)
   if (countdownTimer){
     clearInterval(countdownTimer); countdownTimer = 0;
     teardownCapture(); show("ready"); toast("Cancelled — nothing was recorded.");
@@ -769,7 +685,7 @@ async function finalize(){
     return;
   }
   downloadBlob();
-  showSaved(`It's in your <b>Downloads</b> folder.<br><small>(Look for the ⬇ arrow at the top of this window)</small>`);
+  showSaved(`It's in your <b>Downloads</b> folder.`);
 }
 $("btnGrantSave").onclick = async () => {
   let ok = false;
@@ -781,7 +697,7 @@ $("btnGrantSave").onclick = async () => {
 };
 $("btnSaveDownloadsInstead").onclick = () => {
   downloadBlob();
-  showSaved(`It's in your <b>Downloads</b> folder.<br><small>(Look for the ⬇ arrow at the top of this window)</small>`);
+  showSaved(`It's in your <b>Downloads</b> folder.`);
 };
 async function writeToFolder(){
   try{
@@ -830,12 +746,9 @@ $("btnSaveCopy").onclick = async () => {
     });
     const w = await fh.createWritable();
     await w.write(lastBlob); await w.close();
-    toastSaved("Copy saved ✔");
+    $("savedWhere").innerHTML += `<br><span style="color:var(--green)">Copy saved ✔</span>`;
   }catch(_){/* cancelled */}
 };
-function toastSaved(msg){
-  $("savedWhere").innerHTML += `<br><span style="color:var(--green)">${msg}</span>`;
-}
 
 function fatal(msg){
   teardownCapture();
@@ -846,7 +759,7 @@ function fatal(msg){
 }
 $("btnErrBack").onclick = () => show("ready");
 
-/* ---------- wake lock returns when window comes back ---------- */
+/* keep the screen awake while recording */
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && currentScreen() === "recording" && navigator.wakeLock){
     navigator.wakeLock.request("screen").then(w=>{ wakeLock = w; }).catch(()=>{});
@@ -857,7 +770,7 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("beforeinstallprompt", e => {
   e.preventDefault();
   deferredInstall = e;
-  $("installChip").style.display = "block";
+  $("installChip").style.display = "inline-block";
 });
 $("installChip").onclick = async () => {
   if (!deferredInstall) return;
@@ -870,20 +783,16 @@ window.addEventListener("appinstalled", () => { $("installChip").style.display =
 
 /* ---------- boot ---------- */
 (async function boot(){
-  if (!support.gdm || !support.gum || !support.mime){
-    showUnsupported();
-    return;
-  }
+  if (!support.gdm || !support.gum || !support.mime){ showUnsupported(); return; }
   paintToggles();
   await loadDir();
-  // Re-enable mic quietly if she used it before and permission is still granted
-  if (micWanted && navigator.permissions && navigator.permissions.query){
+  // Restore the mic if it was on last time and permission is still granted,
+  // so the toggle always reflects reality (on = mic actually open).
+  if (localStorage.getItem("esr_mic") === "1" && navigator.permissions){
     try{
       const st = await navigator.permissions.query({ name:"microphone" });
       if (st.state === "granted"){
-        micStream = await navigator.mediaDevices.getUserMedia({
-          audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true }
-        });
+        micStream = await navigator.mediaDevices.getUserMedia(MIC_CONSTRAINTS);
         micOn = true; startMeter();
       }
     }catch(_){}
@@ -895,12 +804,11 @@ window.addEventListener("appinstalled", () => { $("installChip").style.display =
   }
 })();
 
-/* Exposed for automated tests only — carries no logic */
+/* Exposed for automated tests only — carries no app logic */
 window.__esr = {
   version: VERSION,
   get screen(){ return currentScreen(); },
-  get mime(){ return support.mime; },
-  get timeslice(){ return TIMESLICE_MS; }
+  get mime(){ return support.mime; }
 };
 </script>
 </body>
