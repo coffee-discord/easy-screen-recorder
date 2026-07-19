@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screen Recorder</title>
+<meta name="description" content="Record your screen with sound. Big buttons, nothing to install, and your videos never leave your computer.">
+<meta name="theme-color" content="#f6f2ec">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<style>
+  :root{
+    --bg:#f6f2ec; --card:#ffffff; --ink:#23201c; --muted:#6b645c;
+    --red:#d2402e; --red-shadow:#a52e20; --green:#2e7d43; --amber:#8a5a00;
+    --line:#e3dcd2; --radius:22px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html{font-size:18px}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:system-ui, "Segoe UI", Arial, sans-serif;
+    line-height:1.45; min-height:100vh;
+  }
+  main{max-width:580px; margin:0 auto; padding:28px 20px 40px}
+  header{text-align:center; margin-bottom:22px}
+  header .logo{font-size:44px; line-height:1}
+  h1{font-size:34px; margin:6px 0 4px; letter-spacing:-.5px}
+  .tagline{color:var(--muted); margin:0; font-size:17px}
+
+  .screen{display:none}
+  .screen.active{display:block}
+
+  .card{
+    background:var(--card); border:2px solid var(--line); border-radius:var(--radius);
+    padding:18px 20px; margin-bottom:14px;
+  }
+
+  /* ---- toggle cards ---- */
+  button.toggle{
+    display:flex; align-items:center; gap:16px; width:100%;
+    background:var(--card); border:2px solid var(--line); border-radius:var(--radius);
+    padding:18px 20px; cursor:pointer; text-align:left; font:inherit; color:inherit;
+  }
+  button.toggle:focus-visible{outline:4px solid #7aa7d9; outline-offset:2px}
+  .toggle .emoji{font-size:34px}
+  .toggle .lbl{flex:1}
+  .toggle .lbl b{font-size:22px; display:block}
+  .toggle .lbl small{color:var(--muted); font-size:15px}
+  .switch{
+    flex:none; width:84px; height:44px; border-radius:999px; background:#cfc8bd;
+    position:relative; transition:background .15s;
+  }
+  .switch::after{
+    content:""; position:absolute; width:36px; height:36px; border-radius:50%;
+    background:#fff; top:4px; left:4px; transition:left .15s; box-shadow:0 1px 3px rgba(0,0,0,.25);
+  }
+  .switch::before{
+    content:"OFF"; position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    font-size:14px; font-weight:700; color:#6b645c;
+  }
+  .toggle[aria-pressed="true"] .switch{background:var(--green)}
+  .toggle[aria-pressed="true"] .switch::after{left:44px}
+  .toggle[aria-pressed="true"] .switch::before{content:"ON"; left:12px; right:auto; color:#fff}
+  .toggle.busy{opacity:.6; pointer-events:none}
+
+  .mic-extra{margin:-6px 0 14px; padding:0 20px}
+  .meter-wrap{display:flex; align-items:center; gap:10px; background:#efe9df; border-radius:12px; padding:10px 14px}
+  .meter{flex:1; height:14px; background:#dcd4c6; border-radius:999px; overflow:hidden}
+  .meter>div{height:100%; width:0%; background:var(--green); border-radius:999px; transition:width .08s linear}
+  .meter-wrap small{color:var(--muted); white-space:nowrap}
+
+  /* ---- big buttons ---- */
+  .btn{
+    display:block; width:100%; border:none; border-radius:var(--radius); cursor:pointer;
+    font-family:inherit; font-weight:800; text-align:center;
+  }
+  .btn:focus-visible{outline:4px solid #7aa7d9; outline-offset:2px}
+  .btn-record{
+    background:var(--red); color:#fff; font-size:28px; min-height:88px; margin-top:8px;
+    box-shadow:0 6px 0 var(--red-shadow);
+  }
+  .btn-record:active{transform:translateY(4px); box-shadow:0 2px 0 var(--red-shadow)}
+  .btn-stop{
+    background:var(--ink); color:#fff; font-size:28px; min-height:88px;
+    box-shadow:0 6px 0 #000;
+  }
+  .btn-stop:active{transform:translateY(4px); box-shadow:0 2px 0 #000}
+  .btn-green{background:var(--green); color:#fff; font-size:24px; min-height:72px; box-shadow:0 5px 0 #1f5730}
+  .btn-green:active{transform:translateY(3px); box-shadow:0 2px 0 #1f5730}
+  .btn-plain{
+    background:#efe9df; color:var(--ink); font-size:20px; font-weight:700; min-height:60px; margin-top:12px;
+  }
+  .btn-plain:active{transform:translateY(2px)}
+  .btn+.btn{margin-top:14px}
+
+  .save-row{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    margin-top:16px; padding:14px 18px; background:#efe9df; border-radius:16px; font-size:17px;
+  }
+  .save-row .grow{flex:1; min-width:180px}
+  .save-row button{
+    font:inherit; font-weight:700; border:2px solid var(--line); background:#fff;
+    border-radius:12px; padding:8px 14px; cursor:pointer;
+  }
+
+  .pill{
+    margin-top:18px; text-align:center; color:var(--green); font-weight:700; font-size:16px;
+  }
+
+  footer{margin-top:26px; text-align:center; color:var(--muted); font-size:15px}
+  #installChip{
+    display:none; margin:12px auto 0; font:inherit; font-weight:700; font-size:16px;
+    border:2px solid var(--line); background:#fff; border-radius:999px; padding:10px 18px; cursor:pointer;
+  }
+
+  /* ---- hint / instruction screens ---- */
+  .steps{list-style:none; padding:0; margin:0; counter-reset:s}
+  .steps li{
+    counter-increment:s; display:flex; gap:14px; align-items:flex-start;
+    font-size:21px; margin-bottom:16px;
+  }
+  .steps li::before{
+    content:counter(s); flex:none; width:40px; height:40px; border-radius:50%;
+    background:var(--ink); color:#fff; font-weight:800; font-size:20px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .mockdlg{
+    border:2px solid var(--line); border-radius:16px; background:#fff; padding:16px;
+    margin:18px 0; text-align:center;
+  }
+  .mockdlg .mock-title{font-weight:700; color:var(--muted); font-size:15px; margin-bottom:10px}
+  .mockdlg .mock-screen{
+    display:inline-block; border:3px solid #7aa7d9; border-radius:10px; padding:14px 26px;
+    font-size:30px; background:#f2f6fb;
+  }
+  .mockdlg .mock-screen small{display:block; font-size:14px; color:var(--muted)}
+  .mockdlg .mock-audio{margin-top:12px; font-size:18px; font-weight:700}
+  .mockdlg .mock-share{
+    display:inline-block; margin-top:12px; background:#1a73e8; color:#fff; font-weight:700;
+    border-radius:8px; padding:8px 26px; font-size:17px;
+  }
+  .note{color:var(--muted); font-size:16px; text-align:center; margin-top:14px}
+
+  /* ---- countdown / recording ---- */
+  .center{text-align:center}
+  #countNum{font-size:170px; font-weight:800; line-height:1.1; margin:10px 0}
+  .bigmsg{font-size:23px; font-weight:700}
+  #recTimer{
+    font-size:72px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:2px;
+    margin:8px 0 2px;
+  }
+  .recdot{
+    display:inline-block; width:22px; height:22px; border-radius:50%; background:var(--red);
+    margin-right:10px; animation:pulse 1.2s infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  @media (prefers-reduced-motion:reduce){.recdot{animation:none}}
+  .badges{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:14px 0 20px}
+  .badges span{
+    background:#fff; border:2px solid var(--line); border-radius:999px; padding:8px 16px;
+    font-size:16px; font-weight:700;
+  }
+  .badges span.off{opacity:.45; text-decoration:line-through}
+
+  h2{font-size:30px; text-align:center; margin:8px 0 14px}
+  .body-text{font-size:20px}
+  video#player{width:100%; border-radius:16px; background:#000; margin:14px 0}
+  .spinner{
+    width:54px; height:54px; border-radius:50%; margin:24px auto;
+    border:6px solid var(--line); border-top-color:var(--red); animation:spin 1s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .toast{
+    display:none; background:#fff8e6; border:2px solid #e8d9a8; color:var(--amber);
+    border-radius:14px; padding:12px 16px; font-size:17px; font-weight:600; margin-bottom:14px;
+  }
+  kbd.addr{
+    display:block; background:#fff; border:2px dashed var(--line); border-radius:12px;
+    padding:12px; font-size:18px; font-family:Consolas, monospace; text-align:center;
+    margin:12px 0; word-break:break-all;
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="logo" aria-hidden="true">🎬</div>
+    <h1>Screen Recorder</h1>
+    <p class="tagline">Records your screen. Videos stay on <em>your</em> computer.</p>
+  </header>
+
+  <!-- ============ READY ============ -->
+  <section class="screen" id="s-ready">
+    <div class="toast" id="toast" role="status"></div>
+
+    <button class="toggle" id="tgSys" aria-pressed="true">
+      <span class="emoji" aria-hidden="true">🔊</span>
+      <span class="lbl"><b>Computer sound</b><small>music, videos, dings</small></span>
+      <span class="switch" aria-hidden="true"></span>
+    </button>
+
+    <button class="toggle" id="tgMic" aria-pressed="false" style="margin-top:14px">
+      <span class="emoji" aria-hidden="true">🎤</span>
+      <span class="lbl"><b>Microphone</b><small>your voice</small></span>
+      <span class="switch" aria-hidden="true"></span>
+    </button>
+    <div class="mic-extra" id="micExtra" hidden>
+      <div class="meter-wrap">
+        <div class="meter"><div id="meterBar"></div></div>
+        <small id="meterHint">Say something — the green bar should move</small>
+      </div>
+    </div>
+
+    <button class="btn btn-record" id="btnRecord" style="margin-top:18px">
+      ● &nbsp;Start recording
+    </button>
+
+    <div class="save-row">
+      <span class="grow">Videos go to: 📁 <b id="saveWhere">Downloads folder</b></span>
+      <button id="btnChange" hidden>Change…</button>
+      <button id="btnUseDownloads" hidden>Use Downloads</button>
+    </div>
+
+    <div class="pill" id="readyPill" role="status">✔ Ready to record</div>
+
+    <footer>
+      Nothing is uploaded to the internet — recordings never leave this computer.
+      <button id="installChip">⬇ &nbsp;Put this on my desktop as an app</button>
+    </footer>
+  </section>
+
+  <!-- ============ HINT (share dialog is about to open / open) ============ -->
+  <section class="screen" id="s-hint">
+    <h2>A window is popping up…</h2>
+    <ol class="steps" id="hintSteps"></ol>
+    <div class="mockdlg" aria-hidden="true">
+      <div class="mock-title">It looks something like this:</div>
+      <div class="mock-screen">🖥️<small>Entire screen</small></div>
+      <div class="mock-audio" id="mockAudioLine">☑ Also share system audio &nbsp;← tick this!</div>
+      <div class="mock-share">Share</div>
+    </div>
+    <p class="note">Changed your mind? Press <b>Cancel</b> in the popup — nothing will be recorded.</p>
+  </section>
+
+  <!-- ============ NO SYSTEM AUDIO DETECTED ============ -->
+  <section class="screen" id="s-noaudio">
+    <h2>🔇 I couldn't hear the computer's sound</h2>
+    <p class="body-text center">
+      The little <b>“share audio”</b> box probably wasn't ticked.
+      Want to try once more?
+    </p>
+    <button class="btn btn-green" id="btnRetryShare">🔁 &nbsp;Try again — I'll tick the box</button>
+    <button class="btn btn-plain" id="btnContinueSilent">Record anyway, without computer sound</button>
+    <button class="btn btn-plain" id="btnCancelShare">Cancel</button>
+  </section>
+
+  <!-- ============ COUNTDOWN ============ -->
+  <section class="screen center" id="s-countdown">
+    <p class="bigmsg">Recording starts in…</p>
+    <div id="countNum">3</div>
+    <p class="bigmsg" style="color:var(--muted)">
+      Don't want this window in your video?<br>Minimize it now! (the <b>—</b> button, top right)
+    </p>
+    <button class="btn btn-plain" id="btnCancelCountdown">Cancel</button>
+  </section>
+
+  <!-- ============ RECORDING ============ -->
+  <section class="screen center" id="s-recording">
+    <p class="bigmsg" style="margin-top:6px"><span class="recdot" aria-hidden="true"></span>Recording your screen</p>
+    <div id="recTimer">0:00</div>
+    <div class="badges" id="recBadges"></div>
+    <button class="btn btn-stop" id="btnStop">■ &nbsp;Stop and save</button>
+    <p class="note">
+      You can also press the <b>“Stop sharing”</b> button floating at the
+      bottom of your screen — that saves it too.
+    </p>
+  </section>
+
+  <!-- ============ SAVING ============ -->
+  <section class="screen center" id="s-saving">
+    <h2>Saving your video…</h2>
+    <div class="spinner" id="saveSpinner" aria-hidden="true"></div>
+    <div id="grantWrap" hidden>
+      <p class="body-text">One click to put it in your folder:</p>
+      <button class="btn btn-green" id="btnGrantSave">💾 &nbsp;Save video</button>
+      <button class="btn btn-plain" id="btnSaveDownloadsInstead">Put it in Downloads instead</button>
+    </div>
+  </section>
+
+  <!-- ============ SAVED ============ -->
+  <section class="screen" id="s-saved">
+    <h2>✅ Saved!</h2>
+    <p class="body-text center" id="savedWhere"></p>
+    <video id="player" controls playsinline></video>
+    <button class="btn btn-green" id="btnAgain">🎬 &nbsp;Record another</button>
+    <button class="btn btn-plain" id="btnSaveCopy" hidden>Save a copy somewhere else…</button>
+  </section>
+
+  <!-- ============ MIC PROBLEM ============ -->
+  <section class="screen" id="s-micproblem">
+    <h2 id="micProbTitle">🎤 The microphone is blocked</h2>
+    <p class="body-text" id="micProbBody"></p>
+    <button class="btn btn-plain" id="btnMicBack">OK, go back</button>
+  </section>
+
+  <!-- ============ GENERIC ERROR ============ -->
+  <section class="screen" id="s-error">
+    <h2>😕 Something went wrong</h2>
+    <p class="body-text center" id="errBody">Sorry! Nothing was recorded.</p>
+    <button class="btn btn-green" id="btnErrBack">Try again</button>
+  </section>
+
+  <!-- ============ UNSUPPORTED BROWSER ============ -->
+  <section class="screen" id="s-unsupported">
+    <h2 id="unsTitle">Please open this in Chrome or Microsoft Edge</h2>
+    <div class="body-text" id="unsBody"></div>
+  </section>
+</main>
+
+<script>
+"use strict";
+/* ============================================================
+   Screen Recorder — single-file app.
+   No uploads, no analytics, no external requests.
+   ============================================================ */
+
+const VERSION = "1.0.0";
+// Verified empirically: Chrome's MP4 muxer drops the video track when a
+// timeslice is used (audio-only file results). Must stay null — Chrome
+// disk-backs large in-progress blobs, so memory stays fine either way.
+const TIMESLICE_MS = null;
+
+const $ = id => document.getElementById(id);
+const screens = ["ready","hint","noaudio","countdown","recording","saving","saved","micproblem","error","unsupported"];
+function show(name){
+  for (const s of screens) $("s-"+s).classList.toggle("active", s===name);
+  window.scrollTo(0,0);
+}
+function currentScreen(){ return screens.find(s => $("s-"+s).classList.contains("active")); }
+
+/* ---------- tiny IndexedDB key-value store (for the folder handle) ---------- */
+const idb = {
+  _open(){ return new Promise((res,rej)=>{
+    const r = indexedDB.open("esr",1);
+    r.onupgradeneeded = () => r.result.createObjectStore("kv");
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });},
+  async get(k){ const db = await this._open(); return new Promise((res,rej)=>{
+    const t = db.transaction("kv").objectStore("kv").get(k);
+    t.onsuccess = () => res(t.result); t.onerror = () => rej(t.error);
+  });},
+  async set(k,v){ const db = await this._open(); return new Promise((res,rej)=>{
+    const t = db.transaction("kv","readwrite").objectStore("kv").put(v,k);
+    t.onsuccess = () => res(); t.onerror = () => rej(t.error);
+  });},
+  async del(k){ const db = await this._open(); return new Promise((res,rej)=>{
+    const t = db.transaction("kv","readwrite").objectStore("kv").delete(k);
+    t.onsuccess = () => res(); t.onerror = () => rej(t.error);
+  });}
+};
+
+/* ---------- capability check ---------- */
+function pickMime(withAudio){
+  if (!window.MediaRecorder) return null;
+  const profiles = ['avc1.640028','avc1.42E01E'];
+  const list = withAudio
+    ? profiles.map(p=>`video/mp4;codecs="${p},mp4a.40.2"`).concat(['video/mp4'])
+    : profiles.map(p=>`video/mp4;codecs="${p}"`).concat(['video/mp4']);
+  return list.find(m => MediaRecorder.isTypeSupported(m)) || null;
+}
+const support = {
+  gdm: !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia),
+  gum: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
+  mime: pickMime(true)
+};
+
+function showUnsupported(){
+  const isMobile = /Android|iPhone|iPad|Mobi/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && screen.width < 900);
+  const isFirefox = /Firefox/i.test(navigator.userAgent);
+  show("unsupported");
+  if (isMobile){
+    $("unsTitle").textContent = "This recorder works on computers";
+    $("unsBody").innerHTML = "<p>It looks like you're on a phone or tablet. Please open this address on your <b>computer</b> instead:</p>" + addrBlock();
+    return;
+  }
+  if (!support.gdm){
+    $("unsTitle").textContent = "Please open this in Chrome or Microsoft Edge";
+    $("unsBody").innerHTML =
+      (isFirefox ? "<p>This browser (Firefox) can't record the screen with sound.</p>" : "") +
+      "<p><b>Every Windows computer already has Microsoft Edge.</b> Here's how:</p>" +
+      "<ol class='steps'>" +
+      "<li>Press the <b>⊞ Windows</b> button on your keyboard</li>" +
+      "<li>Type <b>Edge</b> and press <b>Enter</b></li>" +
+      "<li>Type this address at the top and press <b>Enter</b>:</li>" +
+      "</ol>" + addrBlock();
+  } else {
+    $("unsTitle").textContent = "Your browser needs a small, free update";
+    $("unsBody").innerHTML =
+      "<p>Good news — this fixes itself:</p>" +
+      "<ol class='steps'>" +
+      "<li>Click the <b>⋮</b> (three dots) at the top-right of this window</li>" +
+      "<li>Click <b>Help</b>, then <b>About</b></li>" +
+      "<li>It updates by itself — then click <b>Relaunch</b> and come back here</li>" +
+      "</ol>";
+  }
+}
+function addrBlock(){
+  return `<kbd class="addr">${location.origin}${location.pathname}</kbd>`;
+}
+
+/* ---------- state ---------- */
+let sysOn  = (localStorage.getItem("esr_sys") ?? "1") === "1";
+let micOn  = false;                    // becomes true only once permission works
+const micWanted = localStorage.getItem("esr_mic") === "1";
+let micStream = null;                  // live mic stream (kept open for the meter)
+let dirHandle = null;                  // File System Access directory handle
+
+let displayStream = null, recAC = null, recorder = null;
+let chunks = [], recStartTs = 0, timerIv = 0, wakeLock = null;
+let lastBlob = null, lastName = "";
+let countdownTimer = 0, deferredInstall = null;
+
+/* ---------- toggles ---------- */
+function paintToggles(){
+  $("tgSys").setAttribute("aria-pressed", String(sysOn));
+  $("tgMic").setAttribute("aria-pressed", String(micOn));
+  $("micExtra").hidden = !micOn;
+}
+$("tgSys").onclick = () => {
+  sysOn = !sysOn;
+  localStorage.setItem("esr_sys", sysOn ? "1" : "0");
+  paintToggles();
+};
+$("tgMic").onclick = async () => {
+  if (micOn){
+    stopMic();
+    localStorage.setItem("esr_mic","0");
+    paintToggles();
+    return;
+  }
+  $("tgMic").classList.add("busy");
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({
+      audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true }
+    });
+    micOn = true;
+    localStorage.setItem("esr_mic","1");
+    startMeter();
+  } catch(e){
+    showMicProblem(e && e.name);
+  }
+  $("tgMic").classList.remove("busy");
+  paintToggles();
+};
+function stopMic(){
+  micOn = false;
+  stopMeter();
+  if (micStream){ micStream.getTracks().forEach(t=>t.stop()); micStream = null; }
+}
+function showMicProblem(errName){
+  if (errName === "NotFoundError" || errName === "DevicesNotFoundError"){
+    $("micProbTitle").textContent = "🎤 No microphone was found";
+    $("micProbBody").innerHTML = "This computer doesn't seem to have a microphone plugged in. You can still record the screen and the computer's sound — just leave the Microphone switch off.";
+  } else if (errName === "NotAllowedError" || errName === "PermissionDeniedError"){
+    $("micProbTitle").textContent = "🎤 The microphone is blocked";
+    $("micProbBody").innerHTML = "Your browser said no to the microphone. To fix it: click the little <b>🔒 or 🎤 icon</b> right next to the address at the top of this window, switch the Microphone to <b>Allow</b>, then try the switch again.";
+  } else {
+    $("micProbTitle").textContent = "🎤 The microphone isn't working";
+    $("micProbBody").innerHTML = "Something went wrong turning on the microphone. Try again in a moment, or restart the browser.";
+  }
+  show("micproblem");
+}
+$("btnMicBack").onclick = () => show("ready");
+
+/* mic level meter */
+let meterAC = null, meterRaf = 0;
+function startMeter(){
+  try{
+    meterAC = new AudioContext();
+    const src = meterAC.createMediaStreamSource(micStream);
+    const an = meterAC.createAnalyser();
+    an.fftSize = 512;
+    src.connect(an);
+    const buf = new Uint8Array(an.frequencyBinCount);
+    const loop = () => {
+      an.getByteTimeDomainData(buf);
+      let peak = 0;
+      for (let i=0;i<buf.length;i++) peak = Math.max(peak, Math.abs(buf[i]-128));
+      $("meterBar").style.width = Math.min(100, Math.round(peak/128*180)) + "%";
+      meterRaf = requestAnimationFrame(loop);
+    };
+    loop();
+  }catch(_){/* meter is decorative — never block on it */}
+}
+function stopMeter(){
+  cancelAnimationFrame(meterRaf);
+  if (meterAC){ meterAC.close().catch(()=>{}); meterAC = null; }
+  $("meterBar").style.width = "0%";
+}
+
+/* ---------- save location ---------- */
+const FS_OK = "showDirectoryPicker" in window;
+async function loadDir(){
+  if (!FS_OK) return;
+  $("btnChange").hidden = false;
+  try{ dirHandle = await idb.get("dir") || null; }catch(_){ dirHandle = null; }
+  paintSaveRow();
+}
+function paintSaveRow(){
+  $("saveWhere").textContent = dirHandle ? `“${dirHandle.name}” folder` : "Downloads folder";
+  $("btnUseDownloads").hidden = !dirHandle;
+}
+$("btnChange").onclick = async () => {
+  try{
+    const h = await window.showDirectoryPicker({ mode:"readwrite", startIn:"videos" });
+    dirHandle = h;
+    await idb.set("dir", h);
+  }catch(_){/* cancelled */}
+  paintSaveRow();
+};
+$("btnUseDownloads").onclick = async () => {
+  dirHandle = null;
+  try{ await idb.del("dir"); }catch(_){}
+  paintSaveRow();
+};
+
+/* ---------- record flow ---------- */
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg; t.style.display = "block";
+  clearTimeout(t._tm);
+  t._tm = setTimeout(()=>{ t.style.display = "none"; }, 6000);
+}
+
+$("btnRecord").onclick = startFlow;
+
+async function startFlow(){
+  // Created inside the click gesture so autoplay rules never suspend it
+  // (a suspended context would mean a silently muted recording).
+  if (!recAC || recAC.state === "closed"){
+    try{ recAC = new AudioContext(); }catch(_){ recAC = null; }
+  }
+  if (recAC && recAC.state === "suspended") recAC.resume().catch(()=>{});
+  // 1) microphone first, so its permission prompt doesn't interrupt later
+  if (micWantedNow() && !micStream){
+    try{
+      micStream = await navigator.mediaDevices.getUserMedia({
+        audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true }
+      });
+      micOn = true; startMeter(); paintToggles();
+    }catch(e){ showMicProblem(e && e.name); return; }
+  }
+  // 2) screen picker
+  renderHintSteps();
+  show("hint");
+  let stream;
+  try{
+    stream = await navigator.mediaDevices.getDisplayMedia({
+      video:{ frameRate:{ ideal:30, max:30 }, displaySurface:"monitor" },
+      audio: sysOn ? { echoCancellation:false, noiseSuppression:false, autoGainControl:false } : false,
+      systemAudio: sysOn ? "include" : "exclude",
+      selfBrowserSurface: "exclude",
+      monitorTypeSurfaces: "include",
+      preferCurrentTab: false
+    });
+  }catch(_){
+    teardownCapture();
+    show("ready");
+    toast("No problem — nothing was recorded.");
+    return;
+  }
+  displayStream = stream;
+  const vTrack = stream.getVideoTracks()[0];
+  vTrack.addEventListener("ended", onShareEnded);
+
+  // 3) did we actually get the computer's sound?
+  if (sysOn && stream.getAudioTracks().length === 0){
+    show("noaudio");
+    return;
+  }
+  beginCountdown();
+}
+function micWantedNow(){
+  return micOn || (micWanted && !localStorageOptedOut());
+}
+function localStorageOptedOut(){ return localStorage.getItem("esr_mic") === "0"; }
+
+function renderHintSteps(){
+  const steps = ["Click the <b>picture of your screen</b>"];
+  if (sysOn) steps.push("Tick the box about <b>sharing audio</b> (near the bottom)");
+  steps.push("Press the blue <b>Share</b> button");
+  $("hintSteps").innerHTML = steps.map(s=>`<li><span>${s}</span></li>`).join("");
+  $("mockAudioLine").style.display = sysOn ? "" : "none";
+}
+
+$("btnRetryShare").onclick = () => { teardownCapture(); startFlow(); };
+$("btnContinueSilent").onclick = () => beginCountdown();
+$("btnCancelShare").onclick = () => { teardownCapture(); show("ready"); toast("No problem — nothing was recorded."); };
+
+function beginCountdown(){
+  show("countdown");
+  let n = 3;
+  $("countNum").textContent = n;
+  countdownTimer = setInterval(()=>{
+    n--;
+    if (n > 0){ $("countNum").textContent = n; return; }
+    clearInterval(countdownTimer); countdownTimer = 0;
+    startRecorder();
+  }, 900);
+}
+$("btnCancelCountdown").onclick = () => {
+  clearInterval(countdownTimer); countdownTimer = 0;
+  teardownCapture(); show("ready"); toast("Cancelled — nothing was recorded.");
+};
+
+function startRecorder(){
+  try{
+    const vTrack = displayStream.getVideoTracks()[0];
+    const sysTrack = displayStream.getAudioTracks()[0] || null;
+    const micTrack = (micOn && micStream) ? micStream.getAudioTracks()[0] : null;
+
+    // Mix system + mic into one AAC track
+    let audioTrack = null;
+    if (sysTrack || micTrack){
+      if (!recAC || recAC.state === "closed") recAC = new AudioContext();
+      if (recAC.state === "suspended") recAC.resume();
+      const dest = recAC.createMediaStreamDestination();
+      for (const t of [sysTrack, micTrack]){
+        if (t) recAC.createMediaStreamSource(new MediaStream([t])).connect(dest);
+      }
+      audioTrack = dest.stream.getAudioTracks()[0];
+    }
+
+    const recStream = new MediaStream(audioTrack ? [vTrack, audioTrack] : [vTrack]);
+    const s = vTrack.getSettings();
+    const pixels = (s.width || 1920) * (s.height || 1080);
+    const vbps = Math.min(20e6, Math.max(4e6, Math.round(pixels * 30 * 0.10)));
+    const mime = pickMime(!!audioTrack);
+    if (!mime) throw new Error("MP4 recording is not supported");
+
+    chunks = [];
+    recorder = new MediaRecorder(recStream, {
+      mimeType: mime, videoBitsPerSecond: vbps, audioBitsPerSecond: 160000
+    });
+    recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+    recorder.onerror = e => { fatal("Recording stopped because of an error" + (e.error && e.error.message ? ` (${e.error.message})` : "") + "."); };
+    recorder.onstop = finalize;
+    if (TIMESLICE_MS) recorder.start(TIMESLICE_MS); else recorder.start();
+
+    recStartTs = Date.now();
+    $("recTimer").textContent = "0:00";
+    paintBadges(!!sysTrack, !!micTrack, s.displaySurface);
+    timerIv = setInterval(paintTimer, 250);
+    document.title = "🔴 Recording…";
+    if (navigator.wakeLock) navigator.wakeLock.request("screen").then(w=>{ wakeLock = w; }).catch(()=>{});
+    window.addEventListener("beforeunload", warnUnload);
+    show("recording");
+  }catch(err){
+    fatal("Recording couldn't start. " + (err && err.message ? err.message : ""));
+  }
+}
+function paintBadges(sys, mic, surface){
+  const b = [];
+  b.push(`<span>🖥️ ${surface === "window" ? "One window" : "Screen"} ✓</span>`);
+  b.push(`<span class="${sys?"":"off"}">🔊 Computer sound</span>`);
+  b.push(`<span class="${mic?"":"off"}">🎤 Your voice</span>`);
+  $("recBadges").innerHTML = b.join("");
+}
+function paintTimer(){
+  const s = Math.floor((Date.now() - recStartTs)/1000);
+  const h = Math.floor(s/3600), m = Math.floor(s%3600/60), sec = s%60;
+  const txt = (h? h+":"+String(m).padStart(2,"0") : m) + ":" + String(sec).padStart(2,"0");
+  $("recTimer").textContent = txt;
+  document.title = "🔴 " + txt + " — Recording";
+}
+
+function onShareEnded(){
+  // User pressed the browser's own "Stop sharing" button (or during countdown)
+  if (countdownTimer){
+    clearInterval(countdownTimer); countdownTimer = 0;
+    teardownCapture(); show("ready"); toast("Cancelled — nothing was recorded.");
+    return;
+  }
+  if (recorder && recorder.state === "recording") stopRecording();
+}
+$("btnStop").onclick = stopRecording;
+function stopRecording(){
+  if (!recorder || recorder.state === "inactive") return;
+  clearInterval(timerIv);
+  try{ recorder.stop(); }catch(_){ finalize(); }
+}
+
+function warnUnload(e){ e.preventDefault(); e.returnValue = ""; }
+
+function teardownCapture(){
+  if (displayStream){ displayStream.getTracks().forEach(t=>t.stop()); displayStream = null; }
+  if (recAC){ recAC.close().catch(()=>{}); recAC = null; }
+  if (wakeLock){ wakeLock.release().catch(()=>{}); wakeLock = null; }
+  window.removeEventListener("beforeunload", warnUnload);
+  document.title = "Screen Recorder";
+}
+
+/* ---------- saving ---------- */
+function makeName(){
+  const d = new Date(), pad = n => String(n).padStart(2,"0");
+  let h = d.getHours(); const ap = h >= 12 ? "pm" : "am"; h = h % 12 || 12;
+  return `Screen Recording ${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} at ${h}.${pad(d.getMinutes())}.${pad(d.getSeconds())} ${ap}.mp4`;
+}
+
+async function finalize(){
+  recorder = null;
+  teardownCapture();
+  clearInterval(timerIv);
+
+  if (!chunks.length){ fatal("Nothing was recorded — the recording was empty."); return; }
+  lastBlob = new Blob(chunks, { type:"video/mp4" });
+  chunks = [];
+  lastName = makeName();
+
+  show("saving");
+  $("grantWrap").hidden = true;
+  $("saveSpinner").style.display = "";
+
+  if (dirHandle){
+    let perm = "prompt";
+    try{ perm = await dirHandle.queryPermission({ mode:"readwrite" }); }catch(_){}
+    if (perm === "granted"){
+      if (await writeToFolder()) return;
+      downloadFallback("I couldn't open your folder, so it went to <b>Downloads</b> instead.");
+      return;
+    }
+    // Permission needs a click (browser rule) — show one big button
+    $("saveSpinner").style.display = "none";
+    $("grantWrap").hidden = false;
+    return;
+  }
+  downloadBlob();
+  showSaved(`It's in your <b>Downloads</b> folder.<br><small>(Look for the ⬇ arrow at the top of this window)</small>`);
+}
+$("btnGrantSave").onclick = async () => {
+  let ok = false;
+  try{
+    const perm = await dirHandle.requestPermission({ mode:"readwrite" });
+    if (perm === "granted") ok = await writeToFolder();
+  }catch(_){}
+  if (!ok) downloadFallback("That folder didn't work, so the video went to <b>Downloads</b> instead.");
+};
+$("btnSaveDownloadsInstead").onclick = () => {
+  downloadBlob();
+  showSaved(`It's in your <b>Downloads</b> folder.<br><small>(Look for the ⬇ arrow at the top of this window)</small>`);
+};
+async function writeToFolder(){
+  try{
+    const fh = await dirHandle.getFileHandle(lastName, { create:true });
+    const w = await fh.createWritable();
+    await w.write(lastBlob);
+    await w.close();
+    showSaved(`It's in your <b>“${dirHandle.name}”</b> folder, named:<br><small>${lastName}</small>`);
+    return true;
+  }catch(_){ return false; }
+}
+function downloadBlob(){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(lastBlob);
+  a.download = lastName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 60000);
+}
+function downloadFallback(msg){
+  downloadBlob();
+  showSaved(msg);
+}
+function showSaved(whereHTML){
+  $("savedWhere").innerHTML = whereHTML;
+  const url = URL.createObjectURL(lastBlob);
+  const p = $("player");
+  if (p._url) URL.revokeObjectURL(p._url);
+  p.src = p._url = url;
+  $("btnSaveCopy").hidden = !("showSaveFilePicker" in window);
+  show("saved");
+}
+$("btnAgain").onclick = () => {
+  const p = $("player");
+  p.pause(); p.removeAttribute("src"); p.load();
+  if (p._url){ URL.revokeObjectURL(p._url); p._url = null; }
+  lastBlob = null;
+  show("ready");
+};
+$("btnSaveCopy").onclick = async () => {
+  try{
+    const fh = await window.showSaveFilePicker({
+      suggestedName: lastName,
+      types:[{ description:"Video", accept:{ "video/mp4":[".mp4"] } }]
+    });
+    const w = await fh.createWritable();
+    await w.write(lastBlob); await w.close();
+    toastSaved("Copy saved ✔");
+  }catch(_){/* cancelled */}
+};
+function toastSaved(msg){
+  $("savedWhere").innerHTML += `<br><span style="color:var(--green)">${msg}</span>`;
+}
+
+function fatal(msg){
+  teardownCapture();
+  clearInterval(timerIv);
+  recorder = null;
+  $("errBody").textContent = msg;
+  show("error");
+}
+$("btnErrBack").onclick = () => show("ready");
+
+/* ---------- wake lock returns when window comes back ---------- */
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && currentScreen() === "recording" && navigator.wakeLock){
+    navigator.wakeLock.request("screen").then(w=>{ wakeLock = w; }).catch(()=>{});
+  }
+});
+
+/* ---------- install-as-app chip ---------- */
+window.addEventListener("beforeinstallprompt", e => {
+  e.preventDefault();
+  deferredInstall = e;
+  $("installChip").style.display = "block";
+});
+$("installChip").onclick = async () => {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  await deferredInstall.userChoice.catch(()=>{});
+  deferredInstall = null;
+  $("installChip").style.display = "none";
+};
+window.addEventListener("appinstalled", () => { $("installChip").style.display = "none"; });
+
+/* ---------- boot ---------- */
+(async function boot(){
+  if (!support.gdm || !support.gum || !support.mime){
+    showUnsupported();
+    return;
+  }
+  paintToggles();
+  await loadDir();
+  // Re-enable mic quietly if she used it before and permission is still granted
+  if (micWanted && navigator.permissions && navigator.permissions.query){
+    try{
+      const st = await navigator.permissions.query({ name:"microphone" });
+      if (st.state === "granted"){
+        micStream = await navigator.mediaDevices.getUserMedia({
+          audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true }
+        });
+        micOn = true; startMeter();
+      }
+    }catch(_){}
+    paintToggles();
+  }
+  show("ready");
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")){
+    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  }
+})();
+
+/* Exposed for automated tests only — carries no logic */
+window.__esr = {
+  version: VERSION,
+  get screen(){ return currentScreen(); },
+  get mime(){ return support.mime; },
+  get timeslice(){ return TIMESLICE_MS; }
+};
+</script>
+</body>
+</html>

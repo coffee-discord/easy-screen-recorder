@@ -1,0 +1,43 @@
+Copy-paste this message to send (feel free to edit the greeting):
+
+----------------------------------------------------------------------
+
+Hi! I set up a screen recorder for you. It's just a web page — nothing to
+install, and your videos stay on your computer.
+
+Save this link (or keep this message so you can find it):
+
+    https://coffee-discord.github.io/easy-screen-recorder/
+
+HOW TO RECORD:
+
+1. Click the link. (If it doesn't open in Chrome or Edge, tell me and
+   I'll help — it needs one of those two.)
+
+2. Click the big red "Start recording" button.
+
+3. A popup appears. Click the PICTURE OF YOUR SCREEN, tick the little
+   box near the bottom that mentions SHARING AUDIO, then click the blue
+   "Share" button.
+
+4. It counts down 3… 2… 1… and then it's recording everything on your
+   screen. You can minimize the recorder window.
+
+5. When you're done, click the "Stop sharing" button floating at the
+   bottom of your screen. That's it — the video saves itself into your
+   DOWNLOADS folder.
+
+WANT YOUR VOICE IN THE VIDEO?
+Turn the "Microphone" switch ON before you press record. The first time,
+the browser asks for permission — click "Allow". Talk normally; the green
+bar moves when it hears you.
+
+WANT IT AS AN ICON ON YOUR DESKTOP?
+On the recorder page there's a button that says "Put this on my desktop
+as an app". Click it, then click Install. After that it opens like any
+other program.
+
+If anything looks confusing, the page itself will usually tell you what
+to do — and you can always call me!
+
+----------------------------------------------------------------------
