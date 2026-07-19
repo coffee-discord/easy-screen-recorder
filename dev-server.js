@@ -22,6 +22,12 @@ const MIME = {
 http.createServer((req, res) => {
   const u = new URL(req.url, "http://localhost");
 
+  // CORS so the deployed (github.io) copy can hand test blobs back to us
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") { res.writeHead(204); res.end(); return; }
+
   if (req.method === "POST" && u.pathname === "/__test/save") {
     const name = path.basename(u.searchParams.get("name") || "out.mp4");
     fs.mkdirSync(OUT, { recursive: true });
